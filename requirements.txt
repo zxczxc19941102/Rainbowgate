@@ -1,0 +1,6 @@
+# 运行依赖
+requests>=2.31.0
+
+# 打包 EXE 时额外需要（可选）：
+#   pip install pyinstaller
+# 并确保 upx 在 PATH 中（用于压缩，见 build_exe.py）
