@@ -134,8 +134,11 @@ python checkin_core.py -u 账号 -p 密码    :: 临时指定账号（不写入�
 ## 打包 EXE（含 UPX 压缩）
 
 ```bat
-.venv\Scripts\python.exe build_exe.py            :: 默认启用 UPX
+.venv\Scripts\python.exe build_exe.py            :: 默认构建全部目标并启用 UPX
 .venv\Scripts\python.exe build_exe.py --noupx    :: 不使用 UPX
+
+:: 只构建指定目标（可多个），例如只打包图形界面主程序
+.venv\Scripts\python.exe build_exe.py --only RainbowGateCheckin
 ```
 
 产物（`dist/`）：

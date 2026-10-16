@@ -119,7 +119,16 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="打包 Rainbow Gate 签到工具为 EXE")
     parser.add_argument("--noupx", action="store_true", help="不使用 UPX 压缩")
     parser.add_argument("--no-final-upx", action="store_true", help="不用 UPX 压缩最终 EXE 外层")
+    parser.add_argument(
+        "--only",
+        nargs="+",
+        choices=[t["name"] for t in TARGETS],
+        metavar="NAME",
+        help="只构建指定目标（可多个），默认构建全部",
+    )
     args = parser.parse_args(argv)
+
+    targets = [t for t in TARGETS if not args.only or t["name"] in args.only]
 
     upx_dir = find_upx()
     use_upx = not args.noupx and upx_dir is not None
@@ -128,13 +137,14 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Python      : {sys.version.split()[0]}  ({sys.executable})")
     print(f"UPX         : {'已找到 -> ' + upx_dir if upx_dir else '未找到（本次不压缩）'}")
     print(f"输出目录    : {DIST_DIR}")
+    print(f"本次目标    : {', '.join(t['name'] for t in targets)}")
     print("=" * 56)
 
     DIST_DIR.mkdir(parents=True, exist_ok=True)
     # 只清理待生成的 EXE，保留 dist 里已有的 config.json / checkin.log 等
     # 运行时文件，避免覆盖用户正在使用的数据
     locked: list[str] = []
-    for target in TARGETS:
+    for target in targets:
         old_exe = DIST_DIR / f"{target['name']}.exe"
         if not old_exe.exists():
             continue
@@ -148,7 +158,7 @@ def main(argv: list[str] | None = None) -> int:
     started = time.time()
     results: list[tuple[Path, int]] = []
 
-    for target in TARGETS:
+    for target in targets:
         if target["name"] in locked:
             continue
         exe_path = build_target(target, upx_dir, use_upx)
